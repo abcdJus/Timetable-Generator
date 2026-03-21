@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>University Timetable Builder</title>
 
-    <link rel="stylesheet" href="styles.css" />
-    <script src="js/config.js" defer></script>
-    <script src="js/utils.js" defer></script>
-    <script src="js/models.js" defer></script>
-    <script src="js/storage.js" defer></script>
-    <script src="js/scheduler.js" defer></script>
-    <script src="js/ui.js" defer></script>
-    <script src="js/events.js" defer></script>
-    <script src="js/main.js" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <script src= "{{ url_for('static', filename='js/config.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/utils.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/models.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/storage.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/scheduler.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/events.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
   </head>
   <body
     class="bg-gray-50 font-sans text-gray-800 min-h-screen md:h-screen overflow-y-auto md:overflow-hidden flex flex-col md:flex-row"
