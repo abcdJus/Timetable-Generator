@@ -1,4 +1,4 @@
-const BACKEND = 'http://localhost:5000/api';
+const BACKEND = 'http://127.0.0.1:5000/api';
 
 let syncTimer = null;
 
@@ -29,33 +29,11 @@ function loadState() {
 
 async function syncToBackend() {
   try {
-    const our_response = await fetch(`${BACKEND}/courses`);
-    const allthe_courses = await our_response.json();
-    
-    for (const course of allthe_courses) {
-      await fetch(`${BACKEND}/courses/${course.id}`, { method: 'DELETE' });
-    }
-    
-    for (const course of state.courses) {
-      const res = await fetch(`${BACKEND}/courses`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: course.code, color_index: course.colorIndex })
-      });
-      const saved = await res.json();
-      
-      for (const section of course.sections) {
-        await fetch(`${BACKEND}/courses/${saved.id}/sections`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: section.type,
-            label: section.label,
-            meetings: section.meetings
-          })
-        });
-      }
-    }
+    await fetch(`${BACKEND}/courses`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ courses: state.courses })
+    });
   } catch (errors) {
     console.error('Backend sync failed:', errors);
   }
