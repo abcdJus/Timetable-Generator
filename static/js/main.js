@@ -1,5 +1,5 @@
-function init() {
-  const stored = loadState();
+async function init() {
+  const stored = await loadState();
 
   state = {
     courses: stored ? normalizeCourses(stored.courses) : buildSampleCourses(),
