@@ -15,13 +15,44 @@ function saveState() {
   }
 }
 
-function loadState() {
+async function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed || !Array.isArray(parsed.courses)) return null;
-    return parsed;
+    const our_response = await fetch(`${BACKEND}/courses`, {
+      credentials: 'include'
+    });
+    const allthe_courses = await our_response.json();
+    console.log('courses from backend:', allthe_courses);
+    
+    if (allthe_courses.error) {
+      return null;
+    }
+
+    if (allthe_courses.length > 0) {
+      for (const course of allthe_courses) {
+        const sec_response = await fetch(`${BACKEND}/courses/${course.id}/sections`, {
+          credentials: 'include'
+        });
+        const sections = await sec_response.json();
+        course.colorIndex = course.color_index;
+        course.expanded = false;
+        course.editingSectionId = null;
+        course.editingDraftSection = null;
+        course.draftSection = { type: 'Lecture', label: '', meetings: [{ id: Date.now().toString(), day: 'Mon', start: '09:00', end: '10:00' }] };
+        course.sections = sections.map(section => ({
+          ...section,
+          meetings: section.meetings.map(m => ({
+            ...m,
+            id: String(m.id)
+          }))
+        }));
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ courses: allthe_courses, sortBy: 'default' }));
+      return { courses: allthe_courses, sortBy: 'default' };
+    }
+
+    localStorage.removeItem(STORAGE_KEY);
+    return null;
+
   } catch {
     return null;
   }
@@ -32,6 +63,7 @@ async function syncToBackend() {
     await fetch(`${BACKEND}/courses`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ courses: state.courses })
     });
   } catch (errors) {

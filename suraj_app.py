@@ -4,7 +4,7 @@ import sqlite3
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'timetable_generator_secret_key'
-CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True, origins=['http://127.0.0.1:5000'])
 db = 'timetable_generator.db'
 
 # set up database
