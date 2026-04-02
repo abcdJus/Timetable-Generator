@@ -15,158 +15,89 @@
     <script src="{{ url_for('static', filename='js/events.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
   </head>
-  <body
-    class="bg-gray-50 font-sans text-gray-800 min-h-screen md:h-screen overflow-y-auto md:overflow-hidden flex flex-col md:flex-row"
-  >
-    <svg class="icon-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-      <symbol id="icon-calendar-blank" viewBox="0 0 24 24">
-        <rect x="3.5" y="4.5" width="17" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9" />
-        <path d="M8 2.75v3.5M16 2.75v3.5M3.5 9h17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
-      </symbol>
-      <symbol id="icon-plus" viewBox="0 0 24 24">
-        <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
-      </symbol>
-      <symbol id="icon-magic-wand" viewBox="0 0 24 24">
-        <path d="M4.5 19.5 19.5 4.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
-        <path d="M14 4.5h2.75M15.375 3.125V5.875M6 11.5h3M7.5 10v3M17.25 10.75h2.25M18.375 9.625v2.25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
-      </symbol>
-      <symbol id="icon-arrow-counter-clockwise" viewBox="0 0 24 24">
-        <path d="M7.5 8.25H4.5V5.25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M4.75 8a8 8 0 1 1-.25 7.75" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="icon-calendar-check" viewBox="0 0 24 24">
-        <rect x="3.5" y="4.5" width="17" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9" />
-        <path d="M8 2.75v3.5M16 2.75v3.5M3.5 9h17M8.5 14l2.25 2.25L15.5 11.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="icon-caret-left" viewBox="0 0 24 24">
-        <path d="M14.5 6 8.5 12l6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="icon-caret-right" viewBox="0 0 24 24">
-        <path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="icon-check-circle" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.9" />
-        <path d="M8.75 12.25 11 14.5l4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="icon-clock" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.9" />
-        <path d="M12 7.75v4.6l3 1.65" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="icon-hourglass-medium" viewBox="0 0 24 24">
-        <path d="M7 4.5h10M7 19.5h10M8 4.5c0 3 2 4.5 4 6 2-1.5 4-3 4-6M8 19.5c0-3 2-4.5 4-6 2 1.5 4 3 4 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="icon-warning-circle" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.9" />
-        <path d="M12 8v5.1M12 16.4h.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="icon-sliders-horizontal" viewBox="0 0 24 24">
-        <path d="M4 7h6M14 7h6M4 17h10M18 17h2M10 7a2 2 0 1 0 0 .01M14 17a2 2 0 1 0 0 .01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="icon-book-open" viewBox="0 0 24 24">
-        <path d="M12 6.5c-1.7-1.2-3.6-1.8-5.7-1.8A2.3 2.3 0 0 0 4 7v10.2a1.8 1.8 0 0 0 1.8 1.8c2.1 0 4 .6 6.2 2 2.2-1.4 4.1-2 6.2-2a1.8 1.8 0 0 0 1.8-1.8V7a2.3 2.3 0 0 0-2.3-2.3c-2.1 0-4 .6-5.7 1.8Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" />
-        <path d="M12 6.5V21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
-      </symbol>
-      <symbol id="icon-pencil-simple" viewBox="0 0 24 24">
-        <path d="m15.5 5.5 3 3M6 18l3.6-.6 9.8-9.8a1.7 1.7 0 0 0 0-2.4l-.6-.6a1.7 1.7 0 0 0-2.4 0L6.6 14.4 6 18Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="icon-trash" viewBox="0 0 24 24">
-        <path d="M5.5 7.5h13M9.25 7.5V5.25h5.5V7.5M8.25 10.25v6.5M12 10.25v6.5M15.75 10.25v6.5M7.25 7.5l.6 10.2a1.8 1.8 0 0 0 1.8 1.7h4.7a1.8 1.8 0 0 0 1.8-1.7l.6-10.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="icon-x" viewBox="0 0 24 24">
-        <path d="m7 7 10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
-      </symbol>
-    </svg>
+  <body class="builder-page">
+    <div class="builder-shell">
+      <aside class="builder-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-brand">
+            <h1 class="sidebar-title">Timetable Builder</h1>
+            <p class="sidebar-subtitle">
+              Plan a clean, conflict-free semester schedule
+            </p>
+          </div>
+        <button
+          id="logout-btn"
+          type="button"
+          class="secondary-button secondary-button--compact"
+        >
+          Logout
+        </button>
+        </div>
 
-    <div
-      class="w-full md:w-[26rem] bg-white border-b border-gray-200 md:border-b-0 md:border-r flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-20 md:h-full flex-shrink-0"
-    >
-      <div class="p-6 border-b border-gray-100">
-        <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <svg class="icon text-blue-600 text-3xl" aria-hidden="true"><use href="#icon-calendar-blank"></use></svg>
-          Timetable Builder
-        </h1>
-        <p class="text-sm text-gray-500 mt-1">
-          Plan a clean, conflict-free semester schedule
-        </p>
-      </div>
-
-      <div class="flex-1 overflow-y-auto p-6 space-y-6">
-        <form id="add-course-form" class="flex gap-2">
+        <div class="sidebar-content">
+        <form id="add-course-form" class="course-form">
           <input
             type="text"
             id="course-code-input"
             placeholder="Course Code (e.g. CSCA08)"
-            class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all uppercase"
+            class="text-input course-form__input"
             required
           />
           <button
             type="submit"
-            class="bg-blue-600 hover:bg-blue-700 text-white p-2 w-10 h-10 rounded-lg transition-colors flex items-center justify-center"
+            class="primary-button primary-button--compact"
             title="Add course"
           >
-            <svg class="icon text-xl" aria-hidden="true"><use href="#icon-plus"></use></svg>
+            Add
           </button>
         </form>
 
-        <div class="grid grid-cols-2 gap-3 text-xs">
-          <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
-            <div class="text-gray-500 font-medium">Courses</div>
-            <div id="course-count" class="text-xl font-bold text-gray-900 mt-1">
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="summary-card__label">Courses</div>
+            <div id="course-count" class="summary-card__value">
               0
             </div>
           </div>
-          <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
-            <div class="text-gray-500 font-medium">Sections</div>
-            <div
-              id="section-count"
-              class="text-xl font-bold text-gray-900 mt-1"
-            >
+          <div class="summary-card">
+            <div class="summary-card__label">Sections</div>
+            <div id="section-count" class="summary-card__value">
               0
             </div>
           </div>
         </div>
 
-        <div id="course-list" class="space-y-4"></div>
-      </div>
+        <div id="course-list" class="course-list"></div>
+        </div>
 
-      <div class="p-6 border-t border-gray-100 bg-white space-y-3">
+        <div class="sidebar-footer">
         <p
           id="generate-help"
-          class="hidden rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700"
+          class="status-note status-note--warning is-hidden"
         ></p>
         <button
           id="generate-btn"
-          class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3 rounded-xl font-bold shadow-md shadow-blue-500/20 transition-all flex justify-center items-center gap-2"
+          class="primary-button primary-button--wide"
         >
-          <svg class="icon text-lg" aria-hidden="true"><use href="#icon-magic-wand"></use></svg>
           Generate Timetables
         </button>
 
         <button
           id="reset-btn"
-          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold transition-all flex justify-center items-center gap-2"
+          class="secondary-button secondary-button--wide"
         >
-          <svg class="icon text-lg" aria-hidden="true"><use href="#icon-arrow-counter-clockwise"></use></svg>
-          Reset Sample
-          Data
+          Load Sample Data
         </button>
-      </div>
-    </div>
+        </div>
+      </aside>
 
-    <div
-      class="flex-1 flex flex-col min-h-[32rem] md:min-h-0 md:h-full overflow-hidden relative min-w-0"
-    >
+      <main class="builder-main">
       <div
         id="empty-state"
-        class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gray-50 p-8 text-center transition-opacity duration-300"
+        class="empty-state"
       >
-        <div
-          class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6"
-        >
-          <svg class="icon text-blue-500 text-5xl" aria-hidden="true"><use href="#icon-calendar-check"></use></svg>
-        </div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">Ready to plan?</h2>
-        <p class="text-gray-500 max-w-md mb-8">
+        <h2 class="empty-state__title">Ready to plan?</h2>
+        <p class="empty-state__text">
           Add your courses and their available section choices in the sidebar.
           When you're ready, generate all conflict-free timetable combinations.
         </p>
@@ -174,119 +105,91 @@
 
       <div
         id="results-state"
-        class="hidden flex-col min-h-[32rem] md:min-h-0 md:h-full w-full"
+        class="results-panel is-hidden"
       >
-        <div
-          class="bg-white px-4 py-4 md:px-8 md:py-5 border-b border-gray-200 flex flex-wrap gap-4 items-center justify-between shadow-sm z-10 flex-shrink-0"
-        >
-          <div class="flex items-center gap-4 flex-wrap">
+        <div class="results-toolbar">
+          <div class="results-toolbar__group">
             <div
               id="pagination-controls"
-              class="flex items-center gap-1 bg-gray-100 rounded-lg p-1"
+              class="pager"
             >
               <button
                 id="prev-btn"
-                class="p-1.5 rounded-md hover:bg-white disabled:opacity-30 transition-colors"
+                class="pager__button"
               >
-                <svg class="icon text-lg" aria-hidden="true"><use href="#icon-caret-left"></use></svg>
+                Prev
               </button>
-              <span id="pagination-text" class="px-3 font-semibold text-sm"
+              <span id="pagination-text" class="pager__text"
                 >Option 0 of 0</span
               >
               <button
                 id="next-btn"
-                class="p-1.5 rounded-md hover:bg-white disabled:opacity-30 transition-colors"
+                class="pager__button"
               >
-                <svg class="icon text-lg" aria-hidden="true"><use href="#icon-caret-right"></use></svg>
+                Next
               </button>
             </div>
 
             <div
               id="schedule-stats"
-              class="hidden md:flex items-center gap-4 text-sm text-gray-500 pl-4 border-l border-gray-200"
+              class="results-stats is-hidden"
             >
-              <span class="flex items-center gap-1"
-                ><svg class="icon text-emerald-500 text-lg" aria-hidden="true"><use href="#icon-check-circle"></use></svg
-                ><span id="stat-days">0</span> days</span
-              >
-              <span class="flex items-center gap-1"
-                ><svg class="icon text-blue-500 text-lg" aria-hidden="true"><use href="#icon-clock"></use></svg> Starts
-                <span id="stat-start">0:00</span></span
-              >
-              <span class="flex items-center gap-1"
-                ><svg class="icon text-purple-500 text-lg" aria-hidden="true"><use href="#icon-hourglass-medium"></use></svg>
-                Ends <span id="stat-end">0:00</span></span
-              >
+              <span class="results-stat"><span id="stat-days">0</span> days</span>
+              <span class="results-stat">Starts <span id="stat-start">0:00</span></span>
+              <span class="results-stat">Ends <span id="stat-end">0:00</span></span>
             </div>
 
             <div
               id="error-state"
-              class="hidden flex items-center gap-2 text-red-600 font-medium text-sm"
+              class="results-error is-hidden"
             >
-              <svg class="icon text-xl" aria-hidden="true"><use href="#icon-warning-circle"></use></svg>
               No conflict-free
               schedules possible.
             </div>
           </div>
 
-          <div id="sort-controls" class="flex items-center gap-2 text-sm">
-            <svg class="icon text-gray-400 text-lg" aria-hidden="true"><use href="#icon-sliders-horizontal"></use></svg>
-            <select
-              id="sort-select"
-              class="bg-transparent border-none font-medium text-gray-700 focus:ring-0 cursor-pointer outline-none"
-            >
-              <option value="default">Sort: Default</option>
-              <option value="fewer-days">Sort: Fewer Days on Campus</option>
-              <option value="earliest-finish">Sort: Earliest Finish</option>
-              <option value="latest-start">Sort: Latest Start</option>
-              <option value="compact">Sort: Most Compact</option>
-            </select>
+          <div id="sort-controls" class="sort-panel">
+            <span class="sort-panel__label">Sort by</span>
+            <div class="sort-panel__field">
+              <select
+                id="sort-select"
+                class="sort-select"
+              >
+                <option value="default">Default order</option>
+                <option value="fewer-days">Fewer days on campus</option>
+                <option value="earliest-finish">Earliest finish</option>
+                <option value="latest-start">Latest start</option>
+                <option value="compact">Most compact</option>
+              </select>
+              <span class="sort-select-arrow" aria-hidden="true">v</span>
+            </div>
           </div>
         </div>
 
         <div
           id="timetable-container"
-          class="flex-1 overflow-auto bg-white p-4 md:p-8"
+          class="timetable-scroll"
         >
-          <div class="min-w-[760px] max-w-6xl mx-auto">
-            <div class="flex ml-14 mb-4">
-              <div
-                class="flex-1 text-center font-bold text-gray-400 tracking-wider text-sm uppercase"
-              >
-                Mon
-              </div>
-              <div
-                class="flex-1 text-center font-bold text-gray-400 tracking-wider text-sm uppercase"
-              >
-                Tue
-              </div>
-              <div
-                class="flex-1 text-center font-bold text-gray-400 tracking-wider text-sm uppercase"
-              >
-                Wed
-              </div>
-              <div
-                class="flex-1 text-center font-bold text-gray-400 tracking-wider text-sm uppercase"
-              >
-                Thu
-              </div>
-              <div
-                class="flex-1 text-center font-bold text-gray-400 tracking-wider text-sm uppercase"
-              >
-                Fri
-              </div>
+          <div class="timetable-shell">
+            <div class="timetable-day-header-row">
+              <div class="timetable-day-header">Mon</div>
+              <div class="timetable-day-header">Tue</div>
+              <div class="timetable-day-header">Wed</div>
+              <div class="timetable-day-header">Thu</div>
+              <div class="timetable-day-header">Fri</div>
             </div>
 
-            <div class="relative">
-              <div id="grid-rows" class="absolute inset-0 z-0"></div>
+            <div class="timetable-grid">
+              <div id="grid-rows" class="timetable-grid-background"></div>
               <div
                 id="grid-columns"
-                class="relative z-10 flex ml-14 h-[832px]"
+                class="timetable-grid-columns"
               ></div>
             </div>
           </div>
         </div>
       </div>
+      </main>
     </div>
   </body>
 </html>

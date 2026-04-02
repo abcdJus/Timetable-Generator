@@ -1,11 +1,14 @@
+// Creates a lightweight unique id for courses, sections, and meetings in the UI.
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+// Makes a deep copy so edits do not accidentally mutate the original object.
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+// Escapes user-provided text before putting it into HTML strings.
 function escapeHtml(value = '') {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -15,11 +18,7 @@ function escapeHtml(value = '') {
     .replaceAll("'", '&#039;');
 }
 
-function renderIcon(name, classes = '') {
-  const className = ['icon', classes].filter(Boolean).join(' ');
-  return '<svg class="' + className + '" aria-hidden="true"><use href="#icon-' + name + '"></use></svg>';
-}
-
+// Validates a HH:MM time string and falls back when the value is invalid.
 function normalizeTimeValue(value, fallback) {
   if (typeof value !== 'string') return fallback;
 
@@ -42,6 +41,7 @@ function normalizeTimeValue(value, fallback) {
   return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
 }
 
+// Creates one meeting object with safe default values.
 function createMeeting(day = DAYS[0], start = '09:00', end = '10:00') {
   return {
     id: generateId(),
@@ -51,15 +51,17 @@ function createMeeting(day = DAYS[0], start = '09:00', end = '10:00') {
   };
 }
 
+// Normalizes meeting data coming from storage, the backend, or the editor UI.
 function normalizeMeeting(meeting = {}) {
   return {
-    id: meeting.id || generateId(),
+    id: meeting.id != null ? String(meeting.id) : generateId(),
     day: DAYS.includes(meeting.day) ? meeting.day : DAYS[0],
     start: normalizeTimeValue(meeting.start, '09:00'),
     end: normalizeTimeValue(meeting.end, '10:00'),
   };
 }
 
+// Creates the empty section form state shown when adding a new section.
 function createDraftSection(type = 'Lecture') {
   return {
     type: SECTION_TYPES.includes(type) ? type : 'Lecture',
@@ -68,6 +70,7 @@ function createDraftSection(type = 'Lecture') {
   };
 }
 
+// Creates one course object in the frontend format the app expects.
 function createCourse(code, colorIndex = 0, sections = []) {
   const normalizedSections = Array.isArray(sections)
     ? sections.map((section) => normalizeSection(section))
@@ -85,15 +88,18 @@ function createCourse(code, colorIndex = 0, sections = []) {
   };
 }
 
+// Converts a time string like 09:30 into total minutes for comparisons.
 function timeToMins(time = '00:00') {
   const normalized = normalizeTimeValue(time, '00:00');
   const [hours, minutes] = normalized.split(':').map(Number);
   return hours * 60 + minutes;
 }
 
+// Converts total minutes back into the HH:MM format used on screen.
 function minsToTime(totalMinutes = 0) {
   const safeMinutes = Math.max(0, Math.floor(Number(totalMinutes) || 0));
   const hours = Math.floor(safeMinutes / 60);
   const minutes = safeMinutes % 60;
-  return hours + ':' + String(minutes).padStart(2, '0');
+  
+  return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
 }

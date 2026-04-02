@@ -1,7 +1,21 @@
+// Helper function to keep generated data, saved state, and rendered UI in sync after course changes
+function refreshAfterCourseChange() {
+  resetGeneratedState();
+  saveState();
+  renderCourses();
+  updateMainView();
+}
+
+// Handles adding a new course from the sidebar form.
 DOM.addCourseForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const code = DOM.courseCodeInput.value.trim().toUpperCase();
   if (!code) return;
+
+  if (state.courses.some((course) => course.code === code)) {
+    alert(`Course "${code}" has already been added.`);
+    return;
+  }
 
   state.courses.forEach((course) => {
     course.expanded = false;
@@ -15,12 +29,10 @@ DOM.addCourseForm.addEventListener('submit', (e) => {
   newCourse.expanded = true;
   state.courses.push(newCourse);
   DOM.courseCodeInput.value = '';
-  resetGeneratedState();
-  saveState();
-  renderCourses();
-  updateMainView();
+  refreshAfterCourseChange();
 });
 
+// Handles all button clicks inside the course list using event delegation.
 DOM.courseList.addEventListener('click', (e) => {
   const button = e.target.closest('button');
   const toggle = e.target.closest('.toggle-course-btn');
@@ -32,10 +44,7 @@ DOM.courseList.addEventListener('click', (e) => {
     if (button.classList.contains('delete-course-btn')) {
       e.stopPropagation();
       state.courses = state.courses.filter((c) => c.id !== courseId);
-      resetGeneratedState();
-      saveState();
-      renderCourses();
-      updateMainView();
+      refreshAfterCourseChange();
       return;
     }
 
@@ -52,10 +61,7 @@ DOM.courseList.addEventListener('click', (e) => {
         stopEditingSection(course);
       }
 
-      resetGeneratedState();
-      saveState();
-      renderCourses();
-      updateMainView();
+      refreshAfterCourseChange();
       return;
     }
 
@@ -105,9 +111,23 @@ DOM.courseList.addEventListener('click', (e) => {
       const draft = getDraftSection(course, scope);
       if (!draft) return;
       const cleanLabel = draft.label.trim().toUpperCase();
+      const duplicateSection = course.sections.find((section) => {
+        if (scope === 'edit' && section.id === course.editingSectionId) {
+          return false;
+        }
+
+        return section.label.trim().toUpperCase() === cleanLabel;
+      });
 
       if (!cleanLabel) {
         alert('Please enter a section label.');
+        return;
+      }
+
+      if (duplicateSection) {
+        alert(
+          `Section label "${cleanLabel}" already exists in ${course.code}. Please use a different label.`,
+        );
         return;
       }
 
@@ -138,10 +158,7 @@ DOM.courseList.addEventListener('click', (e) => {
         course.draftSection = createDraftSection(draft.type);
       }
 
-      resetGeneratedState();
-      saveState();
-      renderCourses();
-      updateMainView();
+      refreshAfterCourseChange();
       return;
     }
   }
@@ -161,6 +178,7 @@ DOM.courseList.addEventListener('click', (e) => {
   }
 });
 
+// Updates draft text/time inputs as the user types.
 DOM.courseList.addEventListener('input', (e) => {
   const target = e.target;
   const courseId = target.getAttribute('data-course-id');
@@ -198,6 +216,7 @@ DOM.courseList.addEventListener('input', (e) => {
   }
 });
 
+// Updates draft dropdown values after the user changes them.
 DOM.courseList.addEventListener('change', (e) => {
   const target = e.target;
   const courseId = target.getAttribute('data-course-id');
@@ -225,16 +244,16 @@ DOM.courseList.addEventListener('change', (e) => {
   }
 });
 
+// Starts timetable generation when the main action button is pressed.
 DOM.generateBtn.addEventListener('click', generateAlgorithm);
 
+// Replaces the current course list with the demo sample data.
 DOM.resetBtn.addEventListener('click', () => {
   state.courses = buildSampleCourses();
-  resetGeneratedState();
-  saveState();
-  renderCourses();
-  updateMainView();
+  refreshAfterCourseChange();
 });
 
+// Moves to the previous generated timetable option.
 DOM.prevBtn.addEventListener('click', () => {
   if (state.currentIndex > 0) {
     state.currentIndex -= 1;
@@ -242,6 +261,7 @@ DOM.prevBtn.addEventListener('click', () => {
   }
 });
 
+// Moves to the next generated timetable option.
 DOM.nextBtn.addEventListener('click', () => {
   if (state.currentIndex < state.sortedSchedules.length - 1) {
     state.currentIndex += 1;
@@ -249,9 +269,30 @@ DOM.nextBtn.addEventListener('click', () => {
   }
 });
 
+// Re-sorts the generated results when the user changes the dropdown.
 DOM.sortSelect.addEventListener('change', (e) => {
   state.sortBy = e.target.value;
   sortSchedules();
   if (state.hasGenerated) updateMainView();
   saveState();
 });
+
+// Logs the user out from the timetable page and prevents double-clicks while it runs.
+if (DOM.logoutBtn) {
+  DOM.logoutBtn.addEventListener('click', async () => {
+    if (DOM.logoutBtn.disabled) return;
+
+    const originalLabel = DOM.logoutBtn.textContent;
+    DOM.logoutBtn.disabled = true;
+    DOM.logoutBtn.textContent = 'Logging out...';
+
+    try {
+      await logoutUser();
+    } finally {
+      if (!authRedirectInProgress) {
+        DOM.logoutBtn.disabled = false;
+        DOM.logoutBtn.textContent = originalLabel;
+      }
+    }
+  });
+}

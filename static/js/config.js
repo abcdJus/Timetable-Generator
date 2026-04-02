@@ -1,15 +1,4 @@
-const COLORS = [
-  { bg: 'bg-blue-100', border: 'border-blue-300', text: 'text-blue-900' },
-  {
-    bg: 'bg-emerald-100',
-    border: 'border-emerald-300',
-    text: 'text-emerald-900',
-  },
-  { bg: 'bg-purple-100', border: 'border-purple-300', text: 'text-purple-900' },
-  { bg: 'bg-amber-100', border: 'border-amber-300', text: 'text-amber-900' },
-  { bg: 'bg-rose-100', border: 'border-rose-300', text: 'text-rose-900' },
-  { bg: 'bg-cyan-100', border: 'border-cyan-300', text: 'text-cyan-900' },
-];
+const COLORS = ['blue', 'emerald', 'purple', 'amber', 'rose', 'cyan'];
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const SECTION_TYPES = ['Lecture', 'Tutorial', 'Practical', 'Seminar', 'Lab'];
@@ -44,6 +33,7 @@ const DOM = {
   timetableContainer: document.getElementById('timetable-container'),
   courseCount: document.getElementById('course-count'),
   sectionCount: document.getElementById('section-count'),
+  logoutBtn: document.getElementById('logout-btn'),
 };
 
 const SAMPLE_COURSES = [

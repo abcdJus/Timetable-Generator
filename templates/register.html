@@ -1,43 +1,41 @@
 <!doctype html>
+<html lang="en">
 <head>
 <title>Register</title>
-<!-- import min's stylesheet -->
 <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
-
 </head>
 
-<body>
-    <!-- set up Register page -->
-<div style = "display:flex; align-items: center; justify-content: center; min-height: 100vh;">
-    <div class = "bg-white rounded-xl shadow-md p-8 max-w-md w-full">
-    <h2 class = "text-2xl font-bold text-gray-900 mb-2"> Thank you for Registering</h2>
-    <p class = "text-gray-700 mb-6"> Please provide the following information to register: </p>
-    {% for message in get_flashed_messages() %}
-        <p style="color:red;">{{ message }}</p>
-    {% endfor %}
-    <form id = 'register' action="/register" method="post">
-        <div class = "mb-4">
-            <label for="username" class = "block text-gray-700 font-bold mb-2">Username</label>
-            <input type="text" id="username" name="username" placeholder = "bob@gmail.com" required class = "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+<body class="auth-page">
+<div class="auth-shell">
+    <div class="auth-card">
+    <button type="button" onclick="window.location.href='/login'" class="secondary-button secondary-button--compact auth-back-button">
+        Back to Login
+    </button>
+    <h2 class="auth-title">Thank you for Registering</h2>
+    <p class="auth-subtitle">Please provide the following information to register:</p>
+    {% if message %}
+        <p class="auth-message {% if message_type == 'success' %}auth-message--success{% else %}auth-message--error{% endif %}">{{ message }}</p>
+    {% endif %}
+    <form id="register" action="/register" method="post" class="auth-form">
+        <div class="form-field">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" id="username" name="username" placeholder="bob@gmail.com" required class="text-input">
         </div>
-        <div class = "mb-4">
-            <label for="password" class = "block text-gray-700 font-bold mb-2">Password</label>
-            <input type="password" id="password" name="password" placeholder = "••••••••" required class = "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <div class="form-field">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter password" required class="text-input">
         </div>
-        <div class = "mb-6">
-            <label for="confirm_password" class = "block text-gray-700 font-bold mb-2"> Confirm Password</label>
-            <input type="password" id="confirm_password" name="confirm_password" placeholder = "••••••••" required class = "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <div class="form-field">
+            <label for="confirm_password" class="form-label">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm password" required class="text-input">
         </div>
 
-    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">
+        <button type="submit" class="primary-button primary-button--wide">
           Register
         </button>
     </form>
-    
-
-    
 </div>
 </div>
 
 </body>
-<html>
+</html>

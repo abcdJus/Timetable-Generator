@@ -1,6 +1,7 @@
+// Normalizes a saved section so the rest of the app can trust its shape.
 function normalizeSection(section = {}) {
   return {
-    id: section.id || generateId(),
+    id: section.id != null ? String(section.id) : generateId(),
     type: SECTION_TYPES.includes(section.type) ? section.type : 'Lecture',
     label: String(section.label || '').toUpperCase(),
     meetings:
@@ -10,6 +11,7 @@ function normalizeSection(section = {}) {
   };
 }
 
+// Normalizes the temporary section the user is currently editing.
 function normalizeDraftSection(draftSection = {}, fallbackType = 'Lecture') {
   return {
     type: SECTION_TYPES.includes(draftSection.type)
@@ -23,19 +25,22 @@ function normalizeDraftSection(draftSection = {}, fallbackType = 'Lecture') {
   };
 }
 
+// Normalizes one course record from storage or the backend into UI state.
 function normalizeCourse(course = {}, index = 0) {
   const sections = Array.isArray(course.sections)
     ? course.sections.map((section) => normalizeSection(section))
     : [];
+  const normalizedEditingSectionId =
+    course.editingSectionId != null ? String(course.editingSectionId) : null;
   const defaultType = sections[0]?.type || 'Lecture';
   const editingSectionId = sections.some(
-    (section) => section.id === course.editingSectionId,
+    (section) => section.id === normalizedEditingSectionId,
   )
-    ? course.editingSectionId
+    ? normalizedEditingSectionId
     : null;
 
   return {
-    id: course.id || generateId(),
+    id: course.id != null ? String(course.id) : generateId(),
     code: String(course.code || '').trim().toUpperCase(),
     colorIndex: Number.isInteger(course.colorIndex)
       ? course.colorIndex
@@ -53,12 +58,14 @@ function normalizeCourse(course = {}, index = 0) {
   };
 }
 
+// Normalizes the full course list and drops invalid blank entries.
 function normalizeCourses(courses = []) {
   return courses
     .map((course, index) => normalizeCourse(course, index))
     .filter((course) => course.code);
 }
 
+// Builds the demo timetable set used by the "Load Sample Data" button.
 function buildSampleCourses() {
   return SAMPLE_COURSES.map((course, index) =>
     createCourse(
@@ -69,6 +76,7 @@ function buildSampleCourses() {
   );
 }
 
+// Central frontend state shared by the UI, scheduler, and storage modules.
 let state = {
   courses: [],
   generatedSchedules: [],

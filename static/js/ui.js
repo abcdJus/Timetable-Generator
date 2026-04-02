@@ -1,26 +1,32 @@
+// Finds one course in the current state by its id.
 function getCourse(courseId) {
   return state.courses.find((course) => course.id === courseId);
 }
 
+// Returns either the add form draft or the edit form draft for a course.
 function getDraftSection(course, scope = 'add') {
   return scope === 'edit' ? course.editingDraftSection : course.draftSection;
 }
 
+// Finds one draft meeting inside the currently active draft section.
 function getDraftMeeting(course, meetingId, scope = 'add') {
   const draft = getDraftSection(course, scope);
   return draft?.meetings.find((meeting) => meeting.id === meetingId);
-}
+} 
 
+// Opens a section in edit mode using a cloned draft copy.
 function startEditingSection(course, section) {
   course.editingSectionId = section.id;
   course.editingDraftSection = normalizeSection(clone(section));
 }
 
+// Closes edit mode and clears the temporary draft.
 function stopEditingSection(course) {
   course.editingSectionId = null;
   course.editingDraftSection = null;
 }
 
+// Clears previously generated results after the course data changes.
 function resetGeneratedState() {
   state.generatedSchedules = [];
   state.sortedSchedules = [];
@@ -28,20 +34,35 @@ function resetGeneratedState() {
   state.hasGenerated = false;
 }
 
+// Returns courses that still need at least one section before generation can run.
 function getIncompleteCourses() {
   return state.courses.filter((course) => course.sections.length === 0);
 }
 
+// Returns true only when every current course is ready for schedule generation.
 function canGenerateSchedules() {
   return state.courses.length > 0 && getIncompleteCourses().length === 0;
 }
 
+// Picks the semantic color name used for one course across the UI.
+function getCourseColorName(course) {
+  return COLORS[course.colorIndex % COLORS.length];
+}
+
+// Updates the helper text that explains why generation is currently blocked.
 function updateGenerateHelp() {
   const incompleteCourses = getIncompleteCourses();
 
-  if (state.courses.length === 0 || incompleteCourses.length === 0) {
+  if (state.courses.length === 0) {
     DOM.generateHelp.textContent = '';
-    DOM.generateHelp.classList.add('hidden');
+    DOM.generateHelp.classList.add('is-hidden');
+    DOM.generateBtn.removeAttribute('title');
+    return;
+  }
+
+  if (incompleteCourses.length === 0) {
+    DOM.generateHelp.textContent = '';
+    DOM.generateHelp.classList.add('is-hidden');
     DOM.generateBtn.removeAttribute('title');
     return;
   }
@@ -52,15 +73,11 @@ function updateGenerateHelp() {
       : 'Add at least one section to every course before generating.';
 
   DOM.generateHelp.textContent = message;
-  DOM.generateHelp.classList.remove('hidden');
+  DOM.generateHelp.classList.remove('is-hidden');
   DOM.generateBtn.title = message;
 }
 
-function scrollResultsIntoView() {
-  if (window.innerWidth >= 768) return;
-  DOM.resultsState.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
+// Refreshes the small course and section counters in the sidebar.
 function updateCounts() {
   DOM.courseCount.textContent = state.courses.length;
   DOM.sectionCount.textContent = state.courses.reduce(
@@ -69,6 +86,7 @@ function updateCounts() {
   );
 }
 
+// Draws the timetable grid background and hour labels.
 function renderGridBackground() {
   let rowsHTML = '';
 
@@ -77,12 +95,10 @@ function renderGridBackground() {
     const label = minsToTime(hour * 60).replace(':00', '');
 
     rowsHTML += `
-      <div class="absolute left-0 right-0" style="top:${top}px;">
-        <div class="flex items-center">
-          <span class="text-xs text-gray-400 font-medium w-14 text-right pr-3 bg-white relative z-10" style="transform:translateY(-50%);">
-            ${label}
-          </span>
-          <div class="flex-1 border-t border-gray-100"></div>
+      <div class="timetable-hour-row" style="top:${top}px;">
+        <div class="timetable-hour-row__inner">
+          <span class="timetable-hour-label">${label}</span>
+          <div class="timetable-hour-line"></div>
         </div>
       </div>
     `;
@@ -91,23 +107,51 @@ function renderGridBackground() {
   DOM.gridRows.innerHTML = rowsHTML;
 }
 
+// Builds the HTML for the editable meeting rows inside a draft section.
 function renderDraftMeetings(course, draft, scope) {
   return draft.meetings
     .map(
       (meeting, index) => `
-        <div class="border border-gray-200 rounded-lg p-2 bg-gray-50 mb-2">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Meeting ${index + 1}</span>
-            <button class="remove-draft-meeting-btn text-gray-400 hover:text-red-500 disabled:opacity-30" data-course-id="${course.id}" data-draft-scope="${scope}" data-meeting-id="${meeting.id}" ${draft.meetings.length === 1 ? 'disabled' : ''} title="Remove meeting">
-              ${renderIcon('x', 'text-base pointer-events-none')}
+        <div class="meeting-card">
+          <div class="meeting-card__header">
+            <span class="meeting-card__title">Meeting ${index + 1}</span>
+            <button
+              class="mini-button mini-button--danger remove-draft-meeting-btn"
+              data-course-id="${course.id}"
+              data-draft-scope="${scope}"
+              data-meeting-id="${meeting.id}"
+              ${draft.meetings.length === 1 ? 'disabled' : ''}
+              title="Remove meeting"
+              type="button"
+            >
+              Remove
             </button>
           </div>
-          <div class="grid grid-cols-3 gap-2">
-            <select class="draft-day-select border border-gray-200 rounded-md text-xs p-2 bg-white" data-course-id="${course.id}" data-draft-scope="${scope}" data-meeting-id="${meeting.id}">
+          <div class="meeting-card__fields">
+            <select
+              class="editor-select draft-day-select"
+              data-course-id="${course.id}"
+              data-draft-scope="${scope}"
+              data-meeting-id="${meeting.id}"
+            >
               ${DAYS.map((day) => `<option value="${day}" ${day === meeting.day ? 'selected' : ''}>${day}</option>`).join('')}
             </select>
-            <input type="time" value="${meeting.start}" class="draft-start-input border border-gray-200 rounded-md text-xs p-2 bg-white" data-course-id="${course.id}" data-draft-scope="${scope}" data-meeting-id="${meeting.id}" />
-            <input type="time" value="${meeting.end}" class="draft-end-input border border-gray-200 rounded-md text-xs p-2 bg-white" data-course-id="${course.id}" data-draft-scope="${scope}" data-meeting-id="${meeting.id}" />
+            <input
+              type="time"
+              value="${meeting.start}"
+              class="editor-input draft-start-input"
+              data-course-id="${course.id}"
+              data-draft-scope="${scope}"
+              data-meeting-id="${meeting.id}"
+            />
+            <input
+              type="time"
+              value="${meeting.end}"
+              class="editor-input draft-end-input"
+              data-course-id="${course.id}"
+              data-draft-scope="${scope}"
+              data-meeting-id="${meeting.id}"
+            />
           </div>
         </div>
       `,
@@ -115,6 +159,7 @@ function renderDraftMeetings(course, draft, scope) {
     .join('');
 }
 
+// Builds the add/edit section editor block shown inside each course card.
 function renderSectionEditor(course, draft, options = {}) {
   if (!draft) return '';
 
@@ -125,46 +170,72 @@ function renderSectionEditor(course, draft, options = {}) {
     'One course can include lectures, tutorials, practicals, seminars, and labs.';
   const saveLabel = options.saveLabel || 'Add Section';
   const showCancel = Boolean(options.showCancel);
-  const containerClass =
-    options.containerClass ||
-    'bg-white p-3 rounded-lg border border-gray-200 shadow-sm mt-2';
-  const saveButtonClass =
-    options.saveButtonClass || 'bg-gray-900 hover:bg-gray-800';
+  const editorClass = options.isEditing
+    ? 'section-editor section-editor--editing'
+    : 'section-editor';
+  const saveButtonClass = options.isEditing
+    ? 'primary-button primary-button--compact section-editor__save-button section-editor__save-button--editing'
+    : 'primary-button primary-button--compact section-editor__save-button';
 
   return `
-    <div class="${containerClass}">
-      <div class="flex items-center justify-between gap-3 mb-3">
-        <div class="min-w-0">
-          <div class="font-semibold text-gray-800 text-sm">${escapeHtml(title)}</div>
-          <div class="text-xs text-gray-500">${escapeHtml(description)}</div>
+    <div class="${editorClass}">
+      <div class="section-editor__header">
+        <div class="section-editor__heading">
+          <div class="section-editor__title">${escapeHtml(title)}</div>
+          <div class="section-editor__description">${escapeHtml(description)}</div>
         </div>
-        <button class="add-draft-meeting-btn text-xs px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50 shrink-0" data-course-id="${course.id}" data-draft-scope="${scope}">+ Meeting</button>
+        <button
+          class="secondary-button secondary-button--compact add-draft-meeting-btn"
+          data-course-id="${course.id}"
+          data-draft-scope="${scope}"
+          type="button"
+        >
+          Add Meeting
+        </button>
       </div>
 
-      <div class="grid grid-cols-2 gap-2 mb-3">
-        <select class="draft-type-select border border-gray-200 rounded-md text-xs p-2 bg-gray-50" data-course-id="${course.id}" data-draft-scope="${scope}">
+      <div class="section-editor__fields">
+        <select
+          class="editor-select draft-type-select"
+          data-course-id="${course.id}"
+          data-draft-scope="${scope}"
+        >
           ${SECTION_TYPES.map((type) => `<option value="${type}" ${type === draft.type ? 'selected' : ''}>${type}</option>`).join('')}
         </select>
-        <input type="text" value="${escapeHtml(draft.label)}" placeholder="Label (e.g. LEC01)" class="draft-label-input border border-gray-200 rounded-md text-xs p-2 bg-gray-50 uppercase" data-course-id="${course.id}" data-draft-scope="${scope}" />
+        <input
+          type="text"
+          value="${escapeHtml(draft.label)}"
+          placeholder="Label (e.g. LEC01)"
+          class="editor-input editor-input--uppercase draft-label-input"
+          data-course-id="${course.id}"
+          data-draft-scope="${scope}"
+        />
       </div>
 
-      ${renderDraftMeetings(course, draft, scope)}
+      <div class="meeting-list">
+        ${renderDraftMeetings(course, draft, scope)}
+      </div>
 
-      <div class="flex gap-2">
-        <button class="save-section-btn w-full text-white text-xs py-2 rounded-md font-medium transition-colors ${saveButtonClass}" data-course-id="${course.id}" data-draft-scope="${scope}">
+      <div class="section-editor__actions">
+        <button
+          class="${saveButtonClass} save-section-btn"
+          data-course-id="${course.id}"
+          data-draft-scope="${scope}"
+          type="button"
+        >
           ${escapeHtml(saveLabel)}
         </button>
-        ${showCancel ? `<button class="cancel-edit-btn text-xs px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50" data-course-id="${course.id}">Cancel</button>` : ''}
+        ${showCancel ? `<button class="secondary-button secondary-button--compact cancel-edit-btn" data-course-id="${course.id}" type="button">Cancel</button>` : ''}
       </div>
     </div>
   `;
 }
 
+// Renders the full sidebar list of courses, sections, and section editors.
 function renderCourses() {
   if (state.courses.length === 0) {
     DOM.courseList.innerHTML = `
-      <div class="text-center py-8 text-gray-400 text-sm">
-        ${renderIcon('book-open', 'text-3xl mb-2 opacity-50 block')}
+      <div class="course-list-empty">
         No courses added yet. Start by adding a course code above.
       </div>
     `;
@@ -180,7 +251,7 @@ function renderCourses() {
 
   DOM.courseList.innerHTML = state.courses
     .map((course) => {
-      const cColor = COLORS[course.colorIndex % COLORS.length];
+      const colorName = getCourseColorName(course);
       const grouped = groupSectionsByType(course.sections);
 
       let contentHTML = '';
@@ -189,16 +260,16 @@ function renderCourses() {
         const groupedHTML = Object.entries(grouped)
           .map(
             ([type, sections]) => `
-              <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm mb-3">
-                <div class="flex items-center justify-between mb-3">
+              <div class="section-group">
+                <div class="section-group__header">
                   <div>
-                    <div class="font-semibold text-gray-800">${escapeHtml(type)}</div>
-                    <div class="text-xs text-gray-500">Choose one of these when generating timetables</div>
+                    <div class="section-group__title">${escapeHtml(type)}</div>
+                    <div class="section-group__subtitle">Choose one of these when generating timetables</div>
                   </div>
-                  <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md">${sections.length}</span>
+                  <span class="section-group__count">${sections.length}</span>
                 </div>
 
-                <div class="space-y-3">
+                <div class="section-group__list">
                   ${sections
                     .map((section) => {
                       if (
@@ -211,38 +282,47 @@ function renderCourses() {
                           description: 'Update this section right here.',
                           saveLabel: 'Save Changes',
                           showCancel: true,
-                          containerClass:
-                            'rounded-lg border border-blue-200 bg-blue-50/40 p-3 shadow-sm shadow-blue-100/50',
-                          saveButtonClass: 'bg-blue-600 hover:bg-blue-700',
+                          isEditing: true,
                         });
                       }
 
                       return `
-                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm flex justify-between items-start gap-3">
-                          <div class="min-w-0">
-                            <span class="font-semibold text-gray-700 block">
+                        <div class="section-item">
+                          <div class="section-item__main">
+                            <span class="section-item__title">
                               ${escapeHtml(section.label)}
-                              <span class="text-gray-400 font-normal text-xs ml-1">(${escapeHtml(section.type)})</span>
+                              <span class="section-item__type">(${escapeHtml(section.type)})</span>
                             </span>
 
                             ${section.meetings
                               .map(
                                 (meeting) => `
-                                  <div class="text-gray-500 text-xs mt-1 flex items-center gap-1">
-                                    ${renderIcon('clock', 'text-[12px]')}
+                                  <span class="section-item__meeting">
                                     ${meeting.day} ${meeting.start} - ${meeting.end}
-                                  </div>
+                                  </span>
                                 `,
                               )
                               .join('')}
                           </div>
 
-                          <div class="flex items-center gap-1 shrink-0">
-                            <button class="edit-section-btn text-gray-400 hover:text-blue-600 p-1" data-course-id="${course.id}" data-section-id="${section.id}" title="Edit section">
-                              ${renderIcon('pencil-simple', 'text-lg pointer-events-none')}
+                          <div class="section-item__actions">
+                            <button
+                              class="mini-button edit-section-btn"
+                              data-course-id="${course.id}"
+                              data-section-id="${section.id}"
+                              title="Edit section"
+                              type="button"
+                            >
+                              Edit
                             </button>
-                            <button class="delete-section-btn text-gray-400 hover:text-red-500 p-1" data-course-id="${course.id}" data-section-id="${section.id}" title="Delete section">
-                              ${renderIcon('trash', 'text-lg pointer-events-none')}
+                            <button
+                              class="mini-button mini-button--danger delete-section-btn"
+                              data-course-id="${course.id}"
+                              data-section-id="${section.id}"
+                              title="Delete section"
+                              type="button"
+                            >
+                              Delete
                             </button>
                           </div>
                         </div>
@@ -263,19 +343,32 @@ function renderCourses() {
           saveLabel: 'Add Section',
         });
 
-        contentHTML = `<div class="p-4 border-t border-gray-100 bg-gray-50/50">${groupedHTML}${builderHTML}</div>`;
+        contentHTML = `
+          <div class="course-card__content">
+            ${groupedHTML}
+            ${builderHTML}
+          </div>
+        `;
       }
 
       return `
-        <div class="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm transition-all">
-          <div class="px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors ${course.expanded ? 'bg-gray-50' : ''} toggle-course-btn" data-course-id="${course.id}">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="w-3 h-3 rounded-full ${cColor.bg} border ${cColor.border}"></div>
-              <span class="font-bold text-gray-800">${escapeHtml(course.code)}</span>
-              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md">${course.sections.length} sections</span>
+        <div class="course-card">
+          <div
+            class="course-card__header ${course.expanded ? 'course-card__header--expanded' : ''} toggle-course-btn"
+            data-course-id="${course.id}"
+          >
+            <div class="course-card__summary">
+              <div class="course-card__dot course-card__dot--${colorName}"></div>
+              <span class="course-card__code">${escapeHtml(course.code)}</span>
+              <span class="course-card__badge">${course.sections.length} sections</span>
             </div>
-            <button class="delete-course-btn text-gray-400 hover:text-red-500 p-1" data-course-id="${course.id}" title="Delete course">
-              ${renderIcon('trash', 'text-lg pointer-events-none')}
+            <button
+              class="mini-button mini-button--danger delete-course-btn"
+              data-course-id="${course.id}"
+              title="Delete course"
+              type="button"
+            >
+              Delete
             </button>
           </div>
           ${contentHTML}
@@ -285,14 +378,15 @@ function renderCourses() {
     .join('');
 }
 
+// Renders the currently selected generated schedule onto the timetable grid.
 function renderTimetable() {
   if (state.sortedSchedules.length === 0) {
     DOM.gridColumns.innerHTML = '';
-    DOM.timetableContainer.classList.add('hidden');
+    DOM.timetableContainer.classList.add('is-hidden');
     return;
   }
 
-  DOM.timetableContainer.classList.remove('hidden');
+  DOM.timetableContainer.classList.remove('is-hidden');
   const currentSchedule = state.sortedSchedules[state.currentIndex];
   let columnsHTML = '';
 
@@ -307,7 +401,7 @@ function renderTimetable() {
             courseCode: section.courseCode,
             type: section.type,
             label: section.label,
-            colors: section.colors,
+            colorName: section.colorName,
           });
         }
       });
@@ -321,23 +415,27 @@ function renderTimetable() {
         const endMins = timeToMins(meeting.end);
         const topPx = ((startMins - GRID_START_HOUR * 60) / 60) * HOUR_HEIGHT;
         const heightPx = ((endMins - startMins) / 60) * HOUR_HEIGHT;
-        const cColor = meeting.colors;
         const isCompactBlock = heightPx <= HOUR_HEIGHT + 8;
-        const paddingClasses = isCompactBlock ? 'p-2 gap-0.5' : 'p-3 gap-1.5';
-        const titleClasses = isCompactBlock ? 'text-xs' : 'text-sm';
-        const metaClasses = isCompactBlock ? 'text-[10px]' : 'text-xs';
+        const compactClass = isCompactBlock ? ' schedule-block--compact' : '';
 
         return `
-          <div class="absolute left-1 right-1 rounded-xl border-2 overflow-hidden shadow-sm transition-all hover:shadow-md hover:z-20 flex flex-col justify-between ${paddingClasses} ${cColor.bg} ${cColor.border} ${cColor.text}" style="top:${topPx}px; height:${heightPx}px;">
-            <div class="font-bold leading-tight truncate ${titleClasses}">${escapeHtml(meeting.courseCode)}</div>
-            <div class="${metaClasses} font-medium opacity-80 leading-tight truncate">${escapeHtml(meeting.label)} (${escapeHtml(meeting.type)})</div>
-            <div class="text-[10px] font-semibold opacity-70 leading-tight">${minsToTime(startMins)} - ${minsToTime(endMins)}</div>
+          <div
+            class="schedule-block schedule-block--${meeting.colorName}${compactClass}"
+            style="top:${topPx}px; height:${heightPx}px;"
+          >
+            <div class="schedule-block__course">${escapeHtml(meeting.courseCode)}</div>
+            <div class="schedule-block__meta">${escapeHtml(meeting.label)} (${escapeHtml(meeting.type)})</div>
+            <div class="schedule-block__time">${minsToTime(startMins)} - ${minsToTime(endMins)}</div>
           </div>
         `;
       })
       .join('');
 
-    columnsHTML += `<div class="flex-1 relative border-l border-gray-100 first:border-l-0 px-1" style="height:${GRID_HEIGHT}px;">${blocksHTML}</div>`;
+    columnsHTML += `
+      <div class="timetable-column" style="height:${GRID_HEIGHT}px;">
+        ${blocksHTML}
+      </div>
+    `;
   });
 
   DOM.gridColumns.innerHTML = columnsHTML;
@@ -350,34 +448,33 @@ function renderTimetable() {
     state.currentIndex === state.sortedSchedules.length - 1;
 }
 
+// Switches between the empty state, error state, and generated results view.
 function updateMainView() {
   if (!state.hasGenerated) {
-    DOM.emptyState.classList.remove('hidden');
-    DOM.resultsState.classList.add('hidden');
+    DOM.emptyState.classList.remove('is-hidden');
+    DOM.resultsState.classList.add('is-hidden');
     return;
   }
 
-  DOM.emptyState.classList.add('hidden');
-  DOM.resultsState.classList.remove('hidden');
-  DOM.resultsState.classList.add('flex');
+  DOM.emptyState.classList.add('is-hidden');
+  DOM.resultsState.classList.remove('is-hidden');
 
   if (state.sortedSchedules.length > 0) {
-    DOM.errorState.classList.add('hidden');
-    DOM.scheduleStats.classList.remove('hidden');
-    DOM.scheduleStats.classList.add('flex');
-    DOM.paginationControls.classList.remove('hidden');
-    DOM.sortControls.classList.remove('hidden');
+    DOM.errorState.classList.add('is-hidden');
+    DOM.scheduleStats.classList.remove('is-hidden');
+    DOM.paginationControls.classList.remove('is-hidden');
+    DOM.sortControls.classList.remove('is-hidden');
     renderTimetable();
   } else {
-    DOM.errorState.classList.remove('hidden');
-    DOM.scheduleStats.classList.add('hidden');
-    DOM.scheduleStats.classList.remove('flex');
-    DOM.paginationControls.classList.add('hidden');
-    DOM.sortControls.classList.add('hidden');
-    DOM.timetableContainer.classList.add('hidden');
+    DOM.errorState.classList.remove('is-hidden');
+    DOM.scheduleStats.classList.add('is-hidden');
+    DOM.paginationControls.classList.add('is-hidden');
+    DOM.sortControls.classList.add('is-hidden');
+    DOM.timetableContainer.classList.add('is-hidden');
   }
 }
 
+// Generates every conflict-free timetable combination from the current courses.
 function generateAlgorithm() {
   if (!canGenerateSchedules()) {
     alert('Add at least one section option to every course before generating timetables.');
@@ -386,6 +483,7 @@ function generateAlgorithm() {
 
   const results = [];
 
+  // Walks course by course through every valid schedule combination.
   function walkCourses(courseIndex, selectedSections, selectedMeetings) {
     if (courseIndex === state.courses.length) {
       results.push(analyzeSchedule(clone(selectedSections)));
@@ -396,6 +494,7 @@ function generateAlgorithm() {
     const grouped = groupSectionsByType(course.sections);
     const sectionTypes = Object.keys(grouped);
 
+    // Picks one section from each section type inside the current course.
     function chooseOnePerType(typeIndex, chosenForCourse, courseMeetings) {
       if (typeIndex === sectionTypes.length) {
         walkCourses(
@@ -419,7 +518,7 @@ function generateAlgorithm() {
             {
               ...clone(section),
               courseCode: course.code,
-              colors: COLORS[course.colorIndex % COLORS.length],
+              colorName: getCourseColorName(course),
             },
           ],
           [...courseMeetings, ...clone(section.meetings)],
@@ -435,5 +534,4 @@ function generateAlgorithm() {
   state.hasGenerated = true;
   sortSchedules();
   updateMainView();
-  scrollResultsIntoView();
 }

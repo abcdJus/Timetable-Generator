@@ -1,0 +1,23 @@
+// Got the information of how to use operators and functions in JavaScript
+https://developer.mozilla.org/en-US/docs/Web/JavaScript
+
+// Got the information of Web APIs' functions in JavaScript
+https://developer.mozilla.org/en-US/docs/Web/API
+
+// Got the information of ? in JavaScript
+https://www.freecodecamp.org/news/how-the-question-mark-works-in-javascript/
+
+// Got the information of sorting algorithm in JavaScript
+https://stackoverflow.com/questions/6913512/how-to-sort-an-array-of-objects-by-multiple-fields
+
+// Got the idea of changing size of object when hovering
+https://stackoverflow.com/questions/31218383/change-size-of-object-when-hovering
+
+// Got the informations of the error codes
+https://www.dataquest.io/blog/api-in-python/
+
+// Got the information of the adding variable sections to a URL in python
+https://flask.palletsprojects.com/en/stable/quickstart/
+
+// Got the information of @media rule in CSS
+https://www.w3schools.com/cssref/atrule_media.php

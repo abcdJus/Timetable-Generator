@@ -1,3 +1,4 @@
+// Groups a course's sections by type so generation can pick one lecture, one lab, and so on.
 function groupSectionsByType(sections) {
   return sections.reduce((acc, section) => {
     if (!acc[section.type]) acc[section.type] = [];
@@ -6,6 +7,7 @@ function groupSectionsByType(sections) {
   }, {});
 }
 
+// Returns true when two meetings happen on the same day and overlap in time.
 function meetingsOverlap(a, b) {
   if (a.day !== b.day) return false;
   return (
@@ -14,6 +16,7 @@ function meetingsOverlap(a, b) {
   );
 }
 
+// Checks that each meeting is complete, ordered correctly, and does not overlap itself.
 function validateMeetings(meetings) {
   if (!meetings.length) return false;
 
@@ -31,12 +34,14 @@ function validateMeetings(meetings) {
   return true;
 }
 
+// Checks whether a section conflicts with meetings that are already selected.
 function sectionConflictsWithMeetings(section, selectedMeetings) {
   return section.meetings.some((meeting) =>
     selectedMeetings.some((existing) => meetingsOverlap(meeting, existing)),
   );
 }
 
+// Measures how much idle time exists between classes across the week.
 function scheduleCompactness(selections) {
   const byDay = Object.fromEntries(DAYS.map((day) => [day, []]));
   selections.forEach((section) => {
@@ -59,6 +64,7 @@ function scheduleCompactness(selections) {
   return idle;
 }
 
+// Calculates summary stats used for sorting and displaying one generated schedule.
 function analyzeSchedule(selections) {
   const usedDays = new Set();
   let earliestStart = 24 * 60;
@@ -83,7 +89,9 @@ function analyzeSchedule(selections) {
   };
 }
 
+// Sorts generated schedules according to the current dropdown choice.
 function sortSchedules() {
+
   const sorted = [...state.generatedSchedules];
 
   if (state.sortBy === 'fewer-days') {
@@ -105,5 +113,5 @@ function sortSchedules() {
   }
 
   state.sortedSchedules = sorted;
-  state.currentIndex = 0;
+  state.currentIndex = 0; 
 }
